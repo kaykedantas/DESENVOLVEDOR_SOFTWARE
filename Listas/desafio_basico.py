@@ -29,7 +29,4 @@ for numero in numeros:
     soma +=numero
     
 print(f"a soma dos numeros sao:{soma}")
-"""
-soma = sum(numeros)
-print("A soma dos números é:", soma)
-"""
+
