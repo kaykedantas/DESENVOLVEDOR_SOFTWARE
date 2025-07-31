@@ -12,7 +12,7 @@ while True:
         sacar = float(input("Digite o quanto deseja sacar:"))
         if sacar > conta:
             print("Não tem saldo suficiente em conta ")
-        else: 
+        else:   
             conta= conta - sacar 
             print(f"saque efeutado com sucesso, tome aqui os seus {sacar} reais")
     elif escolha == 4:
