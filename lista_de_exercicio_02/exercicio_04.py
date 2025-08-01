@@ -9,3 +9,4 @@ def multiplos(x):
 if __name__ == "__main__":  
     multiplos(10)
     multiplos(5)
+    
