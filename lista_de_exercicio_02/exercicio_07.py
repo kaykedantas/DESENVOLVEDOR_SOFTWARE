@@ -44,7 +44,12 @@ while True:
         2. Mostrar melhor aluno por disciplina: para cada disciplina
         presente na lista, exiba o nome do aluno com a maior nota.
         """
-        
+        """
+        meu_dicionario = {
+          "chave1": valor1,
+          "chave2": valor2,
+        }
+        """
         melhores = {}#declara que vai ser um dicionario 
         for nome,nota,disciplina in  alunos:# aqui ele vai percorrer todo as tuplas da lista
             if disciplina not in melhores:# aqui vai fazer a verificacao se a disciplina nao existe no dicionario, se nao existir ela vai criar no dicionario e ja vai colocar um primeiro valor la
