@@ -40,7 +40,29 @@ while True:
         for aluno in alunos:
             print(f"nome:{aluno[0]}, nota:aluno{aluno[1]}, discplina{aluno[2]}")
     elif escolha == 2:
+        """
+        2. Mostrar melhor aluno por disciplina: para cada disciplina
+        presente na lista, exiba o nome do aluno com a maior nota.
+        """
         
+        melhores = {}#declara que vai ser um dicionario 
+        for nome,nota,disciplina in  alunos:# aqui ele vai percorrer todo as tuplas da lista
+            if disciplina not in melhores:# aqui vai fazer a verificacao se a disciplina nao existe no dicionario, se nao existir ela vai criar no dicionario e ja vai colocar um primeiro valor la
+                melhores[disciplina] = (nome,nota)
+            else: 
+                if nota > melhores[disciplina][1]:# aqui ele vai verficar se a nota da lista de tuplas é maior do que a que esta no dicionario, se for ele substitui o nome e a nota.
+                    melhores[disciplina]= (nome,nota)
+            
+        """        for aluno in  alunos:
+            if aluno[2] not in melhores:
+                melhores[aluno[2]] = (nome,nota)
+            else: 
+                if aluno[1] > melhores[dis]
+                """
+        
+
+            
+            
 
     elif escolha == 4:
         break
