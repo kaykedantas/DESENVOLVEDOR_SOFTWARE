@@ -12,7 +12,8 @@ que o usuário realize várias operações até optar por sair.
 Utilizar função.
 """
 def listar(lista):
-    print(lista)
+    for i,atividade in enumerate(lista, start=1):
+        print(f"N°-{i}, {atividade}")
 def adicionar(add,lista):
     lista.append(add)
     return lista
@@ -34,6 +35,7 @@ if __name__ == "__main__":
             print(lista)
         elif escolha == 2:
             listar(lista)
+        
 
         elif escolha == 3:
             tarefa_tirar =input("digite a tarefa que deseja excluir:")
