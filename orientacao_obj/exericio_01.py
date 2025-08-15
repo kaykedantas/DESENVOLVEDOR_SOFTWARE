@@ -34,12 +34,13 @@ class Biblioteca:
         self.nome = nome
         self.livros = []
 
+
     def adicionar_livro(self, titulo, ano , autor):
         novo_livro = Livro(titulo, ano, autor)
         self.livros.append(novo_livro)
-    def listar_livros():
+    def listar_livros(self):
         for livro in self.livros:
-            print(f"titulo:{livro[0]} ano:{livro[1]} autor:{livro[2]}")
+            print(f"titulo:{livro.titulo} ano:{livro.ano} autor:{livro.autor.nome}, nacionalidade:{livro.autor.nacionalidade}")
 class Usuario: 
     def __init__(self,nome,biblioteca ):
         self.nome = nome 
@@ -47,8 +48,30 @@ class Usuario:
     def pegar_livro(self, titulo):
         for livro in self.biblioteca.livros:
             if livro.titulo == titulo:
-                print(f"livro:{self.titulo} disponivel, emprestimo feito")
+                print(f"livro:{livro.titulo} disponivel, emprestimo feito")
+                return 
+       
+        print("Livro não encontrado, não temos esse livro aqui!")
+biblioteca = Biblioteca("Biblioteca Central")
+while True:
+    escolha = int(input("1. Listar livros disponiveis\n2.Adicionar livros a biblioteca\n3.pegar livro emprestado\n4. Encerrar\n Escolha: "))
+    if escolha == 1:
+        biblioteca.listar_livros()
+    elif escolha == 2: 
+        titulo = input("Digite o nome do livro que deseja adicionar:")
+        ano=int(input("Digite o ano do livro de deseja adicionar:"))
+        autor_nome =input("digite o nome do autor")
+        autor_nacionalidade = input("Digite a nacionalidade do autor")
+        autor = Autor(autor_nome,autor_nacionalidade)
 
-        
+        biblioteca.adicionar_livro(titulo,ano,autor)
+    elif escolha == 3:
+        nome_usuario = input("Digite seu nome ")
+        usuario = Usuario(nome_usuario,biblioteca)
+        titulo = input("digite qual livro deseja pegar emprestado:")
+        usuario.pegar_livro(titulo)
+    elif escolha == 4:
+        break
 
-        
+
+    
