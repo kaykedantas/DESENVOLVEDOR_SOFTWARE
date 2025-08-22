@@ -38,14 +38,14 @@ class Funcionario:
         print(f"Seu salario é:{self.salariobase}")
     def exibirdados(self):
         print(f"Nome:{self.nome}")
-        print(f"salario:{self.salariobase }")
+        print(f"salario:{self.salariobase}")
 class FuncionarioComissionado(Funcionario):
     def __init__(self, nome, salariobase, comissao):
         super().__init__(nome, salariobase)#aproveita o que ja foi feito no construtor de Funcionario
         self.comissao = comissao 
     def calcularsalario(self):
         return self.salariobase + self.comissao
-    def exibirdados(self):
+    def pq(self):
         print(f"Nome:{self.nome}\nSalario base:{self.salariobase}\nComissao:{self.comissao}\n Salario Total:{self.calcularsalario()}")
 
 func1 = Funcionario("Kayke",1000)

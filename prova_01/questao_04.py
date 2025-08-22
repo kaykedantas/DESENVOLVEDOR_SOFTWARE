@@ -18,6 +18,7 @@ vogais = 0
 for i in range(0, tamanho_palavra ,1):
     if palavra[i] in lista_vogais:#"a" or "e" or "i" or "o" or "u"
         vogais= vogais + 1 
+        
 
 
 print(f"o total de vogais é: { vogais}")
