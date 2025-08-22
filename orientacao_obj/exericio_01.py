@@ -37,7 +37,7 @@ class Biblioteca:
     def adicionar_livro(self, titulo, ano , autor):
         novo_livro = Livro(titulo, ano, autor)
         self.livros.append(novo_livro)
-    def listar_livros():
+    def listar_livros(self):
         for livro in self.livros:
             print(f"titulo:{livro[0]} ano:{livro[1]} autor:{livro[2]}")
 class Usuario: 
