@@ -44,7 +44,7 @@ class FuncionarioComissionado(Funcionario):
         super().__init__(nome, salariobase)#aproveita o que ja foi feito no construtor de Funcionario
         self.comissao = comissao 
     def calcularsalario(self):
-        return self.salariobase + self.comissao
+        return print(self.salariobase + self.comissao)
     def pq(self):
         print(f"Nome:{self.nome}\nSalario base:{self.salariobase}\nComissao:{self.comissao}\n Salario Total:{self.calcularsalario()}")
 
