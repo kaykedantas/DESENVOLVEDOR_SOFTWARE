@@ -19,6 +19,7 @@ organização orientada a objetos.
 class Produto:
     
     def __init__(self,nome,preco,quantidade):
+        #declarando atributos privados, que so podem ser acessados pela classe e nao por outras classes
         self.__nome = nome
         self.__preco = preco
         self.__quantidade = quantidade
@@ -36,12 +37,14 @@ class Produto:
         self.__quantidade = nova_quantidade        
 class CarrinhoDeCompras:
     def __init__(self):
+        #uma lista para guardar os objetos Produtos
         self.produtos = []
     def addcarrinho(self,produto):
         self.produtos.append(produto)
     def remove(self,nome):
         for produto in self.produtos:
-            if produto.get_nome() == nome.lowe():
+            #como o atributo é privado, temos que usar o metodo get do Produto para ter acesso ao nome, preço e etc.
+            if produto.get_nome() == nome.lower():
                 self.produtos.remove(produto)
                 print(f"produto removido com sucesso")
             return
@@ -53,11 +56,14 @@ class CarrinhoDeCompras:
             valor = 0
             valor = produto.get_preco() * produto.get_quantidade()
             total += valor 
-            return total
+        return total
     def listar(self):
-        for produto in self.produtos:
-            #print(f"nome:{produto.nome} preco:{produto.preco} quantidade;{produto.quantidade}")
-            print(f"nome:{produto.get_nome()} preco:{produto.get_preco()} quantidade:{produto.get_quantidade()}")
+        if not self.produtos:
+            print("Carrinho vazio")
+        else:
+            for produto in self.produtos:
+                #print(f"nome:{produto.nome} preco:{produto.preco} quantidade;{produto.quantidade}")
+                print(f"nome:{produto.get_nome()} preco:{produto.get_preco()} quantidade:{produto.get_quantidade()}")
 if __name__ == "__main__":
     carrinho = CarrinhoDeCompras()
 
@@ -80,8 +86,8 @@ if __name__ == "__main__":
             print(f"Produto '{nome}' adicionado com sucesso!")
 
         elif opcao == "2":
-            nome = input("Nome do produto a remover: ")
-            carrinho.remove(nome)
+            name = input("Nome do produto a remover: ")
+            carrinho.remove(name)
 
         elif opcao == "3":
             carrinho.listar()
