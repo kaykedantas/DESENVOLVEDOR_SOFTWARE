@@ -34,6 +34,7 @@ class Impressora:
         else:
             for doc in self.documentos:
                 print(f"Titulo documento:{doc.get_titulo() }, conteudo: {doc.get_conteudo()}")
+                #print(f"Titulo documento:{doc.titulo }, conteudo: {doc.conteudo}")
 impressora = Impressora()
 
 
