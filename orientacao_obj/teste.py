@@ -14,8 +14,8 @@ class Carro:
  def __init__(self, modelo, motor, pneus, portas):
     self.modelo = modelo
     self.motor = motor # agregação
-    self.pneus = pneus # lista de objetos Pneu
-    self.portas = portas # lista de objetos Porta
+    self.pneus = pneus # lista objetos Pneu
+    self.portas = portas # lista objetos Porta
  def exibir_info(self):
     print(f"Carro: {self.modelo}")
     print(f"Motor: {self.motor.tipo}")

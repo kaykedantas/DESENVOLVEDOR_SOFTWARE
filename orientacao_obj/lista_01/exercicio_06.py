@@ -47,12 +47,13 @@ class Departamento:
            total = total + funcionario.get_salario()
            i+=1
         print(f"Media salarial do departamento {self.nome}")
-        print(f"media salarial:{total}")
+        print(f"media salarial:{total/i}")
     def listar(self):
         print(f"funcionarios do departamento: {self.nome}")
         for i,funcionario in enumerate(self.funcionarios, start=1):
             print(f"{i}-nome funcionario{funcionario.get_nome()}, Salario:{funcionario.get_salario()}")
-    
+
+                
 if __name__ == "__main__":
     funcionarios=[]
     departamentos=[]
@@ -61,7 +62,7 @@ if __name__ == "__main__":
         escolha = int(input("1-criar funcionario\n2-criar departamento\n3-adicionar um funcionario a um departamento\n4-listar funcionarios de um departamento\n5-mostrar media salarial de um departamento\n6-Sair\nescolha:"))
         if escolha == 1:
             nome = input("Digite o nome do funcionario: ")
-            salario = input("Digite o salario do funcionario:")
+            salario = float(input("Digite o salario do funcionario:"))
             func=Funcionario(nome,salario)
             funcionarios.append(func)
         elif escolha == 2:
@@ -71,11 +72,28 @@ if __name__ == "__main__":
         elif escolha == 3:
             for i,funcionario in enumerate(funcionarios, start=1):
                 print(f"{i}-nome:{funcionario.get_nome()}, salario:{funcionario.get_salario()}")
-            escolha_func = input("escolha:")
+            escolha_func = int(input("escolha:"))-1
             for i, departamento in enumerate(departamentos, start=1):
                 print(f"{i}-Departamento:{departamento.nome}")
-            
-        
+            escolha_dep = int(input("escolha:"))-1
+            try:
+                departamentos[escolha_dep].addfuncionario(funcionarios[escolha_func])
+                print(f"funcionario: {funcionarios[escolha_func].nome}, adicionado ao departamento: {departamentos[escolha_dep].nome}")
+            except:
+                print("funcionario não adicionado com sucesso")
+        elif escolha == 4:
+            #4-listar funcionarios de um departamento
+            print("Listar todos os funcionarios de um departamento")
+            for i,dep in enumerate(departamentos,start=1):
+                print(f"{i} - {dep.nome}")
+            escolha = int(input("Escolha:"))-1
+            departamentos[escolha].listar()               
+        elif escolha == 5:
+            print("mostrar media salarial de um departamento")
+            for i, dep in enumerate(departamentos,start=1):
+                print(f"{i}-{dep.nome}")
+            escolha_ = int(input("Escolha:"))-1
+            departamentos[escolha_].media_salarial()
         
     
     
