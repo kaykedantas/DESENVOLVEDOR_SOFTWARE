@@ -24,11 +24,58 @@ class Participante:
         self.email=email
         
     def emitirCertificado(self):
-        print(f"certificado impresso! parabens {self.nome} ")
+        print(f"certificado impresso! parabens participante: {self.nome} , email:{self.email}")
+        
 class Instrutor(Participante):
+    def __init__(self, nome, email,especialidade):
+        super().__init__(nome, email)
+        self.especialidade = especialidade
+    def emitirCertificado(self):
+        print(f"certificado impresso, Parabens Instrutor {self.nome}, email:{self.email}, especialidade:{self.especialidade}")
+        
 class Aluno(Participante):
     def __init__(self, nome, email, curso):
         super().__init__(nome, email)
         self.curso = curso
-
+    def emitirCertificado(self):
+        print(f"certificado impresso, Parabens {self.nome}, email: {self.email}, curso:{self.curso}")
         
+    
+participantes=[]
+if __name__ == "__main__":
+        while True:
+            escolha = int(input("1-cadastrar participante\n2-Listar participantes\n3-Emitir certificados\n4-sair do programa.\nEscolha"))
+            
+            if escolha ==1:
+                print("==cadastro de participantes")
+                esc= int(input("1-cadastrar aluno\n2-cadastrar professor "))
+                
+                nome= input("Digite o nome:")
+                email = input("Digite o email:")
+                
+                if esc == 1:
+                    curso = input("digite o curso do aluno:")
+                    aluno = Aluno(nome,email,curso)
+                    participantes.append(aluno)
+                    print("aluno incluido com sucesso!")
+                elif esc == 2:
+                    especialidade = input("digite a especialidade do instrutor:")
+                    instrutor = Instrutor(nome,email,especialidade)
+                    participantes.append(instrutor)
+                    print("instrutor adicionado com sucesso!")
+            elif escolha == 2:
+                if not participantes:
+                    print("nenhum participante cadastrado.")
+                else:
+                    for p in participantes:
+                        if isinstance(p,Aluno):
+                            print(f"aluno:{p.nome}, email:{p.email}, curso:{p.curso}")
+                        elif isinstance(p,Instrutor):
+                            print(f"Instrutor:{p.nome}, email:{p.email}, especialidade:{p.especialidade}")
+            elif escolha ==3:
+                for p in participantes:
+                    p.emitirCertificado()
+                    
+            elif escolha ==4:
+                break
+                            
