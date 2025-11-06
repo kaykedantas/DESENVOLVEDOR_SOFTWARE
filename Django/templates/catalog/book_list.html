@@ -1,6 +1,20 @@
 {% extends 'base.html' %}
 {% block title %}Livros · Biblioteca{% endblock %}
 {% block content %}
+  <form method="get" style="margin-bottom: 1rem; display: flex; gap: .75rem; flex-wrap: wrap; align-items: flex-end;">
+  <div style="flex:1; min-width:240px;">
+    <label for="q">Buscar (título, autor ou ISBN)</label>
+    <input id="q" type="text" name="q" value="{{ q }}" placeholder="Ex.: Python" style="width:100%;">
+  </div>
+  <div style="display:flex; align-items:center; gap:.35rem;">
+    <input id="disp" type="checkbox" name="disponivel" value="1" {% if show_only_available %}checked{% endif %}>
+    <label for="disp">Somente disponíveis</label>
+  </div>
+  <div>
+    <button class="btn" type="submit">Filtrar</button>
+    <a class="btn" href="{% url 'catalog:book_list' %}">Limpar</a>
+  </div>
+</form>
   <h1>Livros disponíveis</h1>
   {% if books %}
     <table>
@@ -49,4 +63,22 @@
   {% else %}
     <p class="muted">Nenhum livro cadastrado.</p>
   {% endif %}
+
+{% if page_obj.paginator.num_pages > 1 %}
+  <nav style="margin-top:1rem; display:flex; gap:.5rem; flex-wrap:wrap; align-items:center;">
+    {% if page_obj.has_previous %}
+      <a class="btn" href="?q={{ q }}{% if show_only_available %}&disponivel=1{% endif %}&page={{ page_obj.previous_page_number }}">« Anterior</a>
+    {% else %}
+      <button class="btn" disabled>« Anterior</button>
+    {% endif %}
+
+    <span style="font-size:.8rem;">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+
+    {% if page_obj.has_next %}
+      <a class="btn" href="?q={{ q }}{% if show_only_available %}&disponivel=1{% endif %}&page={{ page_obj.next_page_number }}">Próxima »</a>
+    {% else %}
+      <button class="btn" disabled>Próxima »</button>
+    {% endif %}
+  </nav>
+{% endif %}
 {% endblock %}

@@ -1,5 +1,7 @@
 from datetime import timedelta
 from django.contrib import messages
+from django.db.models import Count, Q, F
+from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
@@ -14,9 +16,47 @@ from .models import Book, Loan
 def book_list(request):
     """Lista todos os livros com quantidade disponível."""
     # Anotação: adiciona campo calculado 'active_loans' em cada livro
+    qs = (
+    Book.objects.all()
+    .annotate(active_loans=Count("loans", filter=Q(loans__returned_at__isnull=True)))
+    .order_by("title")
+    )
     books = Book.objects.annotate(
         active_loans=Count('loans', filter=Q(loans__returned_at__isnull=True))
     )
+        # Base queryset: conta empréstimos ativos por livro e ordena por título
+    qs = (
+        Book.objects.all()
+        .annotate(active_loans=Count("loans", filter=Q(loans__returned_at__isnull=True)))
+        .order_by("title")
+    )
+
+    # Busca textual (?q=)
+    q = request.GET.get("q", "").strip()
+    if q:
+        qs = qs.filter(
+            Q(title__icontains=q) | Q(author__icontains=q) | Q(isbn__icontains=q)
+        )
+
+    # Filtro de disponibilidade (?disponivel=1)
+    disponivel_param = request.GET.get("disponivel")
+    show_only_available = disponivel_param == "1"
+    if show_only_available:
+        # Somente livros onde empréstimos ativos < cópias totais
+        qs = qs.filter(active_loans__lt=F("copies_total"))
+
+    # Paginação (10 itens por página)
+    paginator = Paginator(qs, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    # Contexto enviado ao template
+    context = {
+        "books": page_obj.object_list,  # lista da página atual
+        "page_obj": page_obj,           # objeto de paginação (tem has_next, number, etc.)
+        "q": q,                         # termo de busca (para manter no formulário)
+        "show_only_available": show_only_available,  # estado do checkbox
+    }
     return render(request, 'catalog/book_list.html', {'books': books})
 
 
