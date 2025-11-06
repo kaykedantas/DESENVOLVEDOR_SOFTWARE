@@ -35,6 +35,7 @@ class Book(models.Model):
     def __str__(self):
         """Representação em texto do objeto."""
         return f"{self.title} — {self.author}"
+    
 
     @property
     def copies_available(self):
