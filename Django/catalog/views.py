@@ -1,64 +1,76 @@
 from datetime import timedelta
+
 from django.contrib import messages
-from django.db.models import Count, Q, F
-from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.db.models import Count, Q
+from django.core.paginator import Paginator  # ← NOVO: para dividir resultados em páginas
+from django.db.models import Count, F, Q      # ← MODIFICADO: adicionado F
+from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from .models import Book, Loan
-
-
 # ========== VIEWS PARA USUÁRIOS COMUNS ==========
 
 @login_required
-def book_list(request):
-    """Lista todos os livros com quantidade disponível."""
-    # Anotação: adiciona campo calculado 'active_loans' em cada livro
-    qs = (
-    Book.objects.all()
-    .annotate(active_loans=Count("loans", filter=Q(loans__returned_at__isnull=True)))
-    .order_by("title")
-    )
-    books = Book.objects.annotate(
-        active_loans=Count('loans', filter=Q(loans__returned_at__isnull=True))
-    )
-        # Base queryset: conta empréstimos ativos por livro e ordena por título
-    qs = (
-        Book.objects.all()
-        .annotate(active_loans=Count("loans", filter=Q(loans__returned_at__isnull=True)))
-        .order_by("title")
-    )
+def book_list(request: HttpRequest) -> HttpResponse:
+	"""Lista todos os livros e quantas cópias estão disponíveis.
 
-    # Busca textual (?q=)
-    q = request.GET.get("q", "").strip()
-    if q:
-        qs = qs.filter(
-            Q(title__icontains=q) | Q(author__icontains=q) | Q(isbn__icontains=q)
-        )
+	Funcionalidades:
+	- annotate(active_loans=...): cria um campo calculado na consulta
+	  para saber quantos empréstimos estão ativos por livro.
+	- Busca textual por título, autor ou ISBN (parâmetro ?q=)
+	- Filtro de disponibilidade (parâmetro ?disponivel=1)
+	- Paginação personalizável: 20 itens por página ou todos (?mostrar=todos)
+	"""
+	# Base queryset: conta empréstimos ativos por livro e ordena por título
+	qs = (
+		Book.objects.all()
+		.annotate(active_loans=Count("loans", filter=Q(loans__returned_at__isnull=True)))
+		.order_by("title")
+	)
 
-    # Filtro de disponibilidade (?disponivel=1)
-    disponivel_param = request.GET.get("disponivel")
-    show_only_available = disponivel_param == "1"
-    if show_only_available:
-        # Somente livros onde empréstimos ativos < cópias totais
-        qs = qs.filter(active_loans__lt=F("copies_total"))
+	# 1) Busca textual (?q=termo)
+	# Permite pesquisar por título, autor ou ISBN
+	q = request.GET.get("q", "").strip()
+	if q:
+		qs = qs.filter(
+			Q(title__icontains=q) | Q(author__icontains=q) | Q(isbn__icontains=q)
+		)
 
-    # Paginação (10 itens por página)
-    paginator = Paginator(qs, 10)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
+	# 2) Filtro de disponibilidade (?disponivel=1)
+	# Mostra apenas livros que têm cópias disponíveis
+	disponivel_param = request.GET.get("disponivel")
+	show_only_available = disponivel_param == "1"
+	if show_only_available:
+		# Filtra livros onde empréstimos ativos < cópias totais
+		# F() permite comparar campos no banco sem trazer dados para memória
+		qs = qs.filter(active_loans__lt=F("copies_total"))
 
-    # Contexto enviado ao template
-    context = {
-        "books": page_obj.object_list,  # lista da página atual
-        "page_obj": page_obj,           # objeto de paginação (tem has_next, number, etc.)
-        "q": q,                         # termo de busca (para manter no formulário)
-        "show_only_available": show_only_available,  # estado do checkbox
-    }
-    return render(request, 'catalog/book_list.html', {'books': books})
+	# 3) Paginação personalizável (?mostrar=todos ou ?mostrar=20)
+	mostrar_param = request.GET.get("mostrar", "20")  # padrão: 20 itens
+	
+	if mostrar_param == "todos":
+		# Mostrar todos os itens em uma única página
+		page_obj = None
+		books = qs
+	else:
+		# Paginação com 20 itens por página
+		paginator = Paginator(qs, 20)
+		page_number = request.GET.get("page")
+		page_obj = paginator.get_page(page_number)
+		books = page_obj.object_list
 
+	# Contexto enviado ao template
+	context = {
+		"books": books,                              # lista de livros (da página atual ou todos)
+		"page_obj": page_obj,                        # objeto de paginação (None se mostrar=todos)
+		"q": q,                                      # termo de busca (para manter no formulário)
+		"show_only_available": show_only_available,  # estado do checkbox
+		"mostrar": mostrar_param,                    # opção de visualização selecionada
+		"total_count": qs.count(),                   # total de resultados após filtros
+	}
+	
+	return render(request, "catalog/book_list.html", context)
 
 @login_required
 def borrow_book(request, book_id):

@@ -1,21 +1,99 @@
 {% extends 'base.html' %}
 {% block title %}Livros · Biblioteca{% endblock %}
 {% block content %}
-  <form method="get" style="margin-bottom: 1rem; display: flex; gap: .75rem; flex-wrap: wrap; align-items: flex-end;">
-  <div style="flex:1; min-width:240px;">
-    <label for="q">Buscar (título, autor ou ISBN)</label>
-    <input id="q" type="text" name="q" value="{{ q }}" placeholder="Ex.: Python" style="width:100%;">
-  </div>
-  <div style="display:flex; align-items:center; gap:.35rem;">
-    <input id="disp" type="checkbox" name="disponivel" value="1" {% if show_only_available %}checked{% endif %}>
-    <label for="disp">Somente disponíveis</label>
-  </div>
-  <div>
-    <button class="btn" type="submit">Filtrar</button>
-    <a class="btn" href="{% url 'catalog:book_list' %}">Limpar</a>
-  </div>
-</form>
   <h1>Livros disponíveis</h1>
+
+  {# ========================================= #}
+  {# BLOCO 1: FORMULÁRIO DE BUSCA E FILTROS   #}
+  {# ========================================= #}
+  
+  <form method="get" style="margin-bottom: 1.5rem; padding: 1rem; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px;">
+    
+    {# Linha 1: Campo de busca e seletor de paginação #}
+    <div style="display: grid; grid-template-columns: 1fr auto; gap: 1rem; margin-bottom: 1rem;">
+      
+      {# Campo de busca #}
+      <div>
+        <label for="q" style="display: block; margin-bottom: 0.3rem; font-weight: 500;">
+          Buscar por título, autor ou ISBN
+        </label>
+        <input 
+          id="q" 
+          type="text" 
+          name="q" 
+          value="{{ q }}" 
+          placeholder="Ex.: Python, Machado de Assis, 9788544001196" 
+          style="width: 100%; padding: 0.5rem; border: 1px solid var(--btn-border); border-radius: 4px; background: var(--bg); color: var(--text);"
+        >
+      </div>
+
+      {# Seletor de paginação #}
+      <div>
+        <label for="mostrar" style="display: block; margin-bottom: 0.3rem; font-weight: 500;">
+          Itens por página
+        </label>
+        <select 
+          id="mostrar" 
+          name="mostrar" 
+          style="width: 100%; padding: 0.5rem; border: 1px solid var(--btn-border); border-radius: 4px; background: var(--bg); color: var(--text);"
+        >
+          <option value="50" {% if mostrar == "50" %}selected{% endif %}>50 itens</option>
+          <option value="20" {% if mostrar == "20" %}selected{% endif %}>20 itens</option>
+          <option value="todos" {% if mostrar == "todos" %}selected{% endif %}>Mostrar todos</option>
+        </select>
+      </div>
+    </div>
+
+    {# Linha 2: Checkbox e botões #}
+    <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+      
+      {# Checkbox de disponibilidade #}
+      <div style="display: flex; align-items: center; gap: 0.4rem;">
+        <input 
+          id="disp" 
+          type="checkbox" 
+          name="disponivel" 
+          value="1" 
+          {% if show_only_available %}checked{% endif %}
+          style="cursor: pointer;"
+        >
+        <label for="disp" style="cursor: pointer; user-select: none;">
+          Somente com cópias disponíveis
+        </label>
+      </div>
+
+      {# Botões de ação #}
+      <div style="margin-left: auto; display: flex; gap: 0.5rem;">
+        <button class="btn" type="submit" style="background: var(--accent); color: var(--primary); font-weight: 600;">
+          🔍 Filtrar
+        </button>
+        <a class="btn" href="{% url 'catalog:book_list' %}">
+          ✖ Limpar
+        </a>
+      </div>
+    </div>
+  </form>
+
+  {# ========================================= #}
+  {# BLOCO 2: INFORMAÇÕES SOBRE OS RESULTADOS #}
+  {# ========================================= #}
+  
+  {% if q or show_only_available %}
+    <p class="muted" style="margin-bottom: 1rem;">
+      {% if total_count == 0 %}
+        Nenhum livro encontrado com os filtros aplicados.
+      {% elif total_count == 1 %}
+        1 livro encontrado.
+      {% else %}
+        {{ total_count }} livros encontrados.
+      {% endif %}
+    </p>
+  {% endif %}
+
+  {# ========================================= #}
+  {# BLOCO 3: TABELA DE LIVROS                #}
+  {# ========================================= #}
+  
   {% if books %}
     <table>
       <thead>
@@ -32,14 +110,11 @@
       {% for book in books %}
         <tr>
           <td>
+            {# Exibe a capa do livro se houver imagem cadastrada #}
             {% if book.image %}
-              <img src="{{ book.image.url }}" alt="Capa de {{ book.title }}" 
-                   style="width: 60px; height: 90px; object-fit: cover; border-radius: 4px;">
+              <img src="{{ book.image.url }}" alt="Capa de {{ book.title }}" style="width: 60px; height: 90px; object-fit: cover; border-radius: 4px;">
             {% else %}
-              <div style="width: 60px; height: 90px; background: var(--accent); 
-                          border-radius: 4px; display: flex; align-items: center; 
-                          justify-content: center; color: var(--bg); font-size: 12px; 
-                          text-align: center;">Sem capa</div>
+              <div style="width: 60px; height: 90px; background: var(--accent); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: var(--bg); font-size: 12px; text-align: center;">Sem capa</div>
             {% endif %}
           </td>
           <td>{{ book.title }}</td>
@@ -60,25 +135,47 @@
       {% endfor %}
       </tbody>
     </table>
+
+    {# ========================================= #}
+    {# BLOCO 4: CONTROLES DE PAGINAÇÃO          #}
+    {# ========================================= #}
+    
+    {% if page_obj and page_obj.paginator.num_pages > 1 %}
+      <nav style="margin-top: 1.5rem; display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; justify-content: center; padding: 1rem; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px;">
+        
+        {# Botão Anterior #}
+        {% if page_obj.has_previous %}
+          <a class="btn" href="?q={{ q }}{% if show_only_available %}&disponivel=1{% endif %}&mostrar={{ mostrar }}&page={{ page_obj.previous_page_number }}">
+            « Anterior
+          </a>
+        {% else %}
+          <button class="btn" disabled>« Anterior</button>
+        {% endif %}
+
+        {# Informação da página atual #}
+        <span style="font-size: 0.9rem; padding: 0 1rem;">
+          Página <strong>{{ page_obj.number }}</strong> de <strong>{{ page_obj.paginator.num_pages }}</strong>
+        </span>
+
+        {# Botão Próxima #}
+        {% if page_obj.has_next %}
+          <a class="btn" href="?q={{ q }}{% if show_only_available %}&disponivel=1{% endif %}&mostrar={{ mostrar }}&page={{ page_obj.next_page_number }}">
+            Próxima »
+          </a>
+        {% else %}
+          <button class="btn" disabled>Próxima »</button>
+        {% endif %}
+      </nav>
+    {% endif %}
+
+    {# Mensagem quando está mostrando todos #}
+    {% if mostrar == "todos" and total_count > 20 %}
+      <p class="muted" style="margin-top: 1rem; text-align: center;">
+        Mostrando todos os {{ total_count }} livros em uma única página.
+      </p>
+    {% endif %}
+
   {% else %}
     <p class="muted">Nenhum livro cadastrado.</p>
   {% endif %}
-
-{% if page_obj.paginator.num_pages > 1 %}
-  <nav style="margin-top:1rem; display:flex; gap:.5rem; flex-wrap:wrap; align-items:center;">
-    {% if page_obj.has_previous %}
-      <a class="btn" href="?q={{ q }}{% if show_only_available %}&disponivel=1{% endif %}&page={{ page_obj.previous_page_number }}">« Anterior</a>
-    {% else %}
-      <button class="btn" disabled>« Anterior</button>
-    {% endif %}
-
-    <span style="font-size:.8rem;">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
-
-    {% if page_obj.has_next %}
-      <a class="btn" href="?q={{ q }}{% if show_only_available %}&disponivel=1{% endif %}&page={{ page_obj.next_page_number }}">Próxima »</a>
-    {% else %}
-      <button class="btn" disabled>Próxima »</button>
-    {% endif %}
-  </nav>
-{% endif %}
 {% endblock %}
